@@ -31,6 +31,11 @@ module.exports =
       description: 'Full path to the Ledger binary'
       type: 'string'
       default: 'ledger'
+    checkParseErrors:
+      title: 'Check for parse errors?'
+      description: 'Whether to check for parse errors on every file save'
+      type: 'boolean'
+      default: true
 
   activate: (state) ->
     TransactionsView = require './transactions-view'
@@ -70,6 +75,9 @@ module.exports =
 
     buffer = editor.getBuffer()
     bufferSavedSubscription = buffer.onDidSave (file) =>
+      checkParseErrors = atom.config.get 'language-ledger.checkParseErrors'
+      return if !checkParseErrors
+
       failDetail = (message) ->
         parserErrorPattern = /While parsing file +\"(.+)\", line ([\d]+): ?[\n\r]+([\s\S]+)$/m
         hasParserError = parserErrorPattern.test message
